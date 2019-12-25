@@ -83,7 +83,6 @@ fixSPL() {
     [ -z "$Arelease" ] && Arelease="$(getSPL "$img" android)"
     spl="$(getSPL "$img" spl)"
     setprop ro.keymaster.xxx.release "${Arelease}"
-    setprop ro.keymaster.xxx.security_patch "$spl"
     if [ -z "$Arelease" ] || [ -z "$spl" ];then
         return 0
     fi
@@ -130,7 +129,6 @@ fixSPL() {
             cp -a "$f" "/mnt/phh/$b"
             sed -i \
                 -e 's/ro.build.version.release/ro.keymaster.xxx.release/g' \
-                -e 's/ro.build.version.security_patch/ro.keymaster.xxx.security_patch/g' \
                 -e 's/ro.product.model/ro.keymaster.mod/g' \
                 -e 's/ro.product.brand/ro.keymaster.brn/g' \
                 "/mnt/phh/$b"
@@ -785,34 +783,58 @@ copyprop() {
         resetprop_phh "$1" "$(getprop "$2")"
     fi
 }
-if [ -f /system/phh/secure ] || [ -f /metadata/phh/secure ];then
     copyprop ro.build.device ro.vendor.build.device
     copyprop ro.system.build.fingerprint ro.vendor.build.fingerprint
     copyprop ro.bootimage.build.fingerprint ro.vendor.build.fingerprint
-    copyprop ro.build.fingerprint ro.vendor.build.fingerprint
+    copyprop ro.system_ext.build.fingerprint ro.vendor.build.fingerprint
+    copyprop ro.product.build.fingerprint ro.vendor.build.fingerprint
     copyprop ro.build.device ro.vendor.product.device
     copyprop ro.product.system.device ro.vendor.product.device
     copyprop ro.product.device ro.vendor.product.device
     copyprop ro.product.system.device ro.product.vendor.device
     copyprop ro.product.device ro.product.vendor.device
+    copyprop ro.product.system_ext.device ro.vendor.product.device
+    copyprop ro.product.product.device ro.vendor.product.device
+    copyprop ro.product.system_ext.device ro.product.vendor.device
+    copyprop ro.product.product.device ro.product.vendor.device
     copyprop ro.product.system.name ro.vendor.product.name
     copyprop ro.product.name ro.vendor.product.name
-    copyprop ro.product.system.name ro.product.vendor.device
-    copyprop ro.product.name ro.product.vendor.device
+    copyprop ro.product.system.name ro.product.vendor.name
+    copyprop ro.product.name ro.product.vendor.name
+    copyprop ro.product.system_ext.name ro.vendor.product.name
+    copyprop ro.product.product.name ro.vendor.product.name
+    copyprop ro.product.system_ext.name ro.product.vendor.name
+    copyprop ro.product.product.name ro.product.vendor.name
     copyprop ro.system.product.brand ro.vendor.product.brand
     copyprop ro.product.brand ro.vendor.product.brand
+    copyprop ro.product.system.brand ro.vendor.product.brand
+    copyprop ro.product.system_ext.brand ro.vendor.product.brand
+    copyprop ro.product.product.brand ro.product.vendor.brand
+    copyprop ro.system.product.brand ro.product.vendor.brand
+    copyprop ro.product.brand ro.product.vendor.brand
+    copyprop ro.product.system.brand ro.product.vendor.brand
+    copyprop ro.product.system_ext.brand ro.product.vendor.brand
+    copyprop ro.product.product.brand ro.product.vendor.brand
     copyprop ro.product.system.model ro.vendor.product.model
     copyprop ro.product.model ro.vendor.product.model
+    copyprop ro.product.system_ext.model ro.vendor.product.model
+    copyprop ro.product.product.model ro.vendor.product.model
     copyprop ro.product.system.model ro.product.vendor.model
     copyprop ro.product.model ro.product.vendor.model
     copyprop ro.build.product ro.vendor.product.model
     copyprop ro.build.product ro.product.vendor.model
+    copyprop ro.product.system_ext.model ro.product.vendor.model
+    copyprop ro.product.product.model ro.product.vendor.model
     copyprop ro.system.product.manufacturer ro.vendor.product.manufacturer
     copyprop ro.product.manufacturer ro.vendor.product.manufacturer
+    copyprop ro.product.system.manufacturer ro.vendor.product.manufacturer
+    copyprop ro.product.product.manufacturer ro.vendor.product.manufacturer
+    copyprop ro.product.system_ext.manufacturer ro.vendor.product.manufacturer
     copyprop ro.system.product.manufacturer ro.product.vendor.manufacturer
     copyprop ro.product.manufacturer ro.product.vendor.manufacturer
-    (getprop ro.vendor.build.security_patch; getprop ro.keymaster.xxx.security_patch) |sort |tail -n 1 |while read v;do
-        [ -n "$v" ] && resetprop_phh ro.build.version.security_patch "$v"
+    copyprop ro.product.system.manufacturer ro.product.vendor.manufacturer
+    copyprop ro.product.product.manufacturer ro.product.vendor.manufacturer
+    copyprop ro.product.system_ext.manufacturer ro.product.vendor.manufacturer
     done
 
     resetprop_phh ro.build.user nobody
@@ -838,22 +860,6 @@ if [ -f /system/phh/secure ] || [ -f /metadata/phh/secure ];then
     resetprop_phh --delete ro.build.selinux
 
     resetprop_phh ro.adb.secure 1
-
-    # Hide system/xbin/su
-    mount /mnt/phh/empty_dir /system/xbin
-    mount /mnt/phh/empty_dir /system/app/me.phh.superuser
-    mount /mnt/phh/empty /system/xbin/phh-su
-else
-    mkdir /mnt/phh/xbin
-    chmod 0755 /mnt/phh/xbin
-    chcon u:object_r:system_file:s0 /mnt/phh/xbin
-
-    #phh-su will bind over this empty file to make a real su
-    touch /mnt/phh/xbin/su
-    chcon u:object_r:system_file:s0 /mnt/phh/xbin/su
-
-    mount -o bind /mnt/phh/xbin /system/xbin
-fi
 
 for abi in "" 64;do
     f=/vendor/lib$abi/libstagefright_foundation.so
