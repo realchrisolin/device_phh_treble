@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!-- Force LTE_CA -->
+<string name="force_lte_ca">Агрегация частот</string>
+<string name="force_lte_ca_summary">Этот параметр заставляет принудительно работать агрегацию частот</string>
+</resources>
