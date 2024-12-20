@@ -52,3 +52,6 @@ vendor.usb.use_ffs_mtp=1
 
 # Force LTE_CA
 persist.sys.radio.force_lte_ca=true
+
+# PRIV-APP
+ro.control_privapp_permissions=log
