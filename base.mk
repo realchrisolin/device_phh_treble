@@ -34,9 +34,15 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     ro.build.version.all_codenames=$(PLATFORM_VERSION_ALL_CODENAMES) \
     ro.build.version.release=$(PLATFORM_VERSION) \
     ro.build.version.security_patch=$(PLATFORM_SECURITY_PATCH) \
-    ro.adb.secure=0 \
     ro.logd.auditd=true \
     ro.logd.kernel=true \
+
+# gen_build_prop.py sets ro.adb.secure=1 on user. post_process_props.py
+# rejects a second assignment of 0. userdebug and eng keep open adb.
+ifneq ($(TARGET_BUILD_VARIANT),user)
+PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+    ro.adb.secure=0
+endif
 
 # Huawei HiSuite (also other OEM custom programs I guess) it's of no use in AOSP builds
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \

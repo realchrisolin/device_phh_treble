@@ -23,7 +23,8 @@ allow { appdomain -isolated_app }  mtk_hal_mms_hwservice:hwservice_manager find;
 #denied { getattr } for comm="tkuinit" path="/dev/__properties__/u:object_r:default_prop:s0" dev="tmpfs" ino=2029 scontext=u:r:tkcore:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=1
 
 type tkcore, domain;
-permissive tkcore;
+# User builds reject permissive domains. See system/sepolicy/public/te_macros.
+userdebug_or_eng(`permissive tkcore;')
 
 allow platform_app sysfs_leds:dir r_dir_perms;
 allow platform_app sysfs_leds:file r_file_perms;
